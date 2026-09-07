@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Progetto Arrakis{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1>I Tuoi Task</h1>
+    <a href="{{ url_for('create_task') }}" class="btn">+ Nuovo Task</a>
+</div>
+
+{% if filter_stato %}
+    <p style="color: var(--sand-dark); margin-bottom: 15px;">
+        Filtro: <span class="status {{ filter_stato }}">{{ filter_stato }}</span>
+        <a href="{{ url_for('dashboard') }}" style="color: var(--spice-orange); margin-left: 10px;">Rimuovi filtro</a>
+    </p>
+{% endif %}
+
+{% if tasks %}
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titolo</th>
+                    <th>Descrizione</th>
+                    <th>Stato</th>
+                    <th>Creato</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>#{{ task.task_id }}</td>
+                    <td><strong>{{ task.titolo }}</strong></td>
+                    <td>{{ task.descrizione[:50] }}{% if task.descrizione|length > 50 %}...{% endif %}</td>
+                    <td><span class="status {{ task.stato }}">{{ task.stato }}</span></td>
+                    <td>{{ task.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_task', task_id=task.task_id) }}" class="btn btn-small">Modifica</a>
+                        <form method="POST" action="{{ url_for('delete_task', task_id=task.task_id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Eliminare questo task?')">Elimina</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card">
+        <p style="text-align: center; color: var(--sand-dark); padding: 40px;">
+            Nessun task trovato. <a href="{{ url_for('create_task') }}" style="color: var(--spice-orange);">Crea il primo task</a>
+        </p>
+    </div>
+{% endif %}
+
+<div style="margin-top: 20px;">
+    <a href="{{ url_for('filter_tasks', stato='todo') }}" class="btn btn-small">Todo</a>
+    <a href="{{ url_for('filter_tasks', stato='in_progress') }}" class="btn btn-small">In Progress</a>
+    <a href="{{ url_for('filter_tasks', stato='done') }}" class="btn btn-small">Done</a>
+</div>
+
+{% if datasets %}
+<div style="margin-top: 40px;">
+    <h2 style="color: var(--wisdom-gold); margin-bottom: 15px;">I Tuoi Dataset</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
+        {% for dataset in datasets[:4] %}
+        <div class="card" style="padding: 15px;">
+            <h4 style="color: var(--spice-orange); margin-bottom: 5px;">{{ dataset.nome }}</h4>
+            <p style="font-size: 0.85rem; color: var(--sand-dark);">{{ dataset.file_type|upper }}</p>
+            <a href="{{ url_for('visualize_dataset', dataset_id=dataset.dataset_id) }}" class="btn btn-small" style="margin-top: 10px;">Visualizza</a>
+        </div>
+        {% endfor %}
+    </div>
+    <a href="{{ url_for('data_page') }}" class="btn btn-small" style="margin-top: 15px;">Vedi tutti i Dataset →</a>
+</div>
+{% endif %}
+{% endblock %}

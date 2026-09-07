@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}I Tuoi Dati - Progetto Arrakis{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1>I Tuoi Dataset</h1>
+    <a href="{{ url_for('upload_dataset') }}" class="btn">+ Carica Dataset</a>
+</div>
+
+{% if datasets %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        {% for dataset in datasets %}
+        <div class="card">
+            <h3 style="color: var(--wisdom-gold); margin-bottom: 10px;">{{ dataset.nome }}</h3>
+            <p style="color: var(--sand-dark); font-size: 0.9rem; margin-bottom: 10px;">
+                {{ dataset.descrizione or 'Nessuna descrizione' }}
+            </p>
+            <p style="font-size: 0.8rem; color: var(--sand-dark);">
+                <strong>Tipo:</strong> {{ dataset.file_type|upper }} |
+                <strong>Size:</strong> {{ "%.1f"|format(dataset.file_size / 1024) }} KB
+            </p>
+            <p style="font-size: 0.8rem; color: var(--sand-dark);">
+                <strong>Creato:</strong> {{ dataset.created_at.strftime('%d/%m/%Y %H:%M') }}
+            </p>
+            <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                <a href="{{ url_for('visualize_dataset', dataset_id=dataset.dataset_id) }}" class="btn btn-small">Visualizza (RawGraphs)</a>
+                <a href="{{ url_for('preview_dataset', dataset_id=dataset.dataset_id) }}" class="btn btn-small" style="background: var(--arrakis-green);">Anteprima</a>
+                <a href="{{ url_for('download_csv', dataset_id=dataset.dataset_id) }}" class="btn btn-small">Scarica CSV</a>
+                <form method="POST" action="{{ url_for('delete_dataset', dataset_id=dataset.dataset_id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Eliminare questo dataset?')">Elimina</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card">
+        <p style="text-align: center; color: var(--sand-dark); padding: 40px;">
+            Nessun dataset caricato. <a href="{{ url_for('upload_dataset') }}" style="color: var(--spice-orange);">Carica il tuo primo dataset</a>
+        </p>
+    </div>
+{% endif %}
+
+<div class="card" style="margin-top: 20px;">
+    <h2>Formati Supportati</h2>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
+        <span class="status" style="background: var(--night-sky);">CSV</span>
+        <span class="status" style="background: var(--night-sky);">Excel (.xlsx)</span>
+        <span class="status" style="background: var(--night-sky);">SQLite (.db)</span>
+        <span class="status" style="background: var(--night-sky);">JSON</span>
+        <span class="status" style="background: var(--night-sky);">XML</span>
+        <span class="status" style="background: var(--night-sky);">SQL</span>
+        <span class="status" style="background: var(--night-sky);">TXT</span>
+    </div>
+</div>
+{% endblock %}

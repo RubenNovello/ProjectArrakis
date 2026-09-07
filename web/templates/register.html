@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Registrazione - Progetto Arrakis{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 50px auto;">
+    <div class="card">
+        <h2>Unisciti al Deserto</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required minlength="3">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label for="confirm">Conferma Password</label>
+                <input type="password" id="confirm" name="confirm" required>
+            </div>
+            <button type="submit" class="btn" style="width: 100%;">Crea il tuo Profilo</button>
+        </form>
+        <p style="margin-top: 20px; text-align: center; color: var(--sand-dark);">
+            Hai già un account? <a href="{{ url_for('login') }}" style="color: var(--spice-orange);">Accedi</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

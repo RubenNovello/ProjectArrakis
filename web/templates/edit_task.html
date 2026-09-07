@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Modifica Task - Progetto Arrakis{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 30px auto;">
+    <div class="card">
+        <h2>Modifica Task #{{ task.task_id }}</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label for="titolo">Titolo</label>
+                <input type="text" id="titolo" name="titolo" value="{{ task.titolo }}" required>
+            </div>
+            <div class="form-group">
+                <label for="descrizione">Descrizione</label>
+                <textarea id="descrizione" name="descrizione" rows="4">{{ task.descrizione }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="stato">Stato</label>
+                <select id="stato" name="stato">
+                    <option value="todo" {% if task.stato == 'todo' %}selected{% endif %}>Todo</option>
+                    <option value="in_progress" {% if task.stato == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="done" {% if task.stato == 'done' %}selected{% endif %}>Done</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn">Salva Modifiche</button>
+                <a href="{{ url_for('dashboard') }}" class="btn" style="background: var(--sand-dark);">Annulla</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

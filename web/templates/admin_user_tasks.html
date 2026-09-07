@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Task di {{ target_user.username }} - Progetto Arrakis{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h1>Task di {{ target_user.username }}</h1>
+    <p style="color: var(--sand-dark);">Utente #{{ target_user.user_id }} - {{ target_user.email }}</p>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-small" style="margin-top: 10px;">← Torna alla Dashboard</a>
+</div>
+
+{% if tasks %}
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titolo</th>
+                    <th>Descrizione</th>
+                    <th>Stato</th>
+                    <th>Creato</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>#{{ task.task_id }}</td>
+                    <td><strong>{{ task.titolo }}</strong></td>
+                    <td>{{ task.descrizione[:50] }}{% if task.descrizione|length > 50 %}...{% endif %}</td>
+                    <td><span class="status {{ task.stato }}">{{ task.stato }}</span></td>
+                    <td>{{ task.created_at.strftime('%d/%m/%Y') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card">
+        <p style="text-align: center; color: var(--sand-dark);">
+            Questo utente non ha ancora creato task.
+        </p>
+    </div>
+{% endif %}
+{% endblock %}

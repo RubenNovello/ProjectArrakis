@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Progetto Arrakis{% endblock %}</title>
+    <style>
+        :root {
+            --sand-light: #f4e4bc;
+            --sand-dark: #c2a66b;
+            --spice-orange: #d4762c;
+            --arrakis-green: #2d5a3d;
+            --deep-desert: #1a1a2e;
+            --night-sky: #16213e;
+            --wisdom-gold: #d4af37;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--deep-desert) 0%, var(--night-sky) 100%);
+            min-height: 100vh;
+            color: var(--sand-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        nav {
+            background: rgba(26, 26, 46, 0.95);
+            border-bottom: 2px solid var(--spice-orange);
+            padding: 15px 0;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--wisdom-gold);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--spice-orange);
+        }
+
+        .nav-links a {
+            color: var(--sand-light);
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--spice-orange);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--spice-orange);
+            color: var(--deep-desert);
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: var(--wisdom-gold);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #8b0000;
+            color: white;
+        }
+
+        .btn-small {
+            padding: 5px 15px;
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background: rgba(26, 26, 46, 0.9);
+            border: 1px solid var(--sand-dark);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: var(--wisdom-gold);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--sand-dark);
+            padding-bottom: 10px;
+        }
+
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .flash.success {
+            background: var(--arrakis-green);
+            border: 1px solid #4a8f5c;
+        }
+
+        .flash.error {
+            background: #8b0000;
+            border: 1px solid #b22222;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--sand-light);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--sand-dark);
+            border-radius: 5px;
+            background: var(--deep-desert);
+            color: var(--sand-light);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--spice-orange);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--sand-dark);
+        }
+
+        th {
+            color: var(--wisdom-gold);
+            background: rgba(0,0,0,0.3);
+        }
+
+        tr:hover {
+            background: rgba(212, 118, 44, 0.1);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .status.todo {
+            background: var(--night-sky);
+            color: #6fa8dc;
+            border: 1px solid #6fa8dc;
+        }
+
+        .status.in_progress {
+            background: #7a5c00;
+            color: #ffe066;
+            border: 1px solid #ffe066;
+        }
+
+        .status.done {
+            background: var(--arrakis-green);
+            color: #90ee90;
+            border: 1px solid #90ee90;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--sand-dark);
+            border-top: 1px solid var(--sand-dark);
+            margin-top: 40px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: var(--wisdom-gold);
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--sand-light);
+            margin-bottom: 30px;
+        }
+
+        .hero .subtitle {
+            color: var(--spice-orange);
+            font-style: italic;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="{{ url_for('index') }}" class="logo">Progetto <span>Arrakis</span></a>
+            <div class="nav-links">
+                {% if session.get('user_id') or session.get('admin_id') %}
+                    <span style="color: var(--sand-dark);">Shai Hulud, {{ session.get('username') }}</span>
+                    <a href="{{ url_for('dashboard') }}">Task</a>
+                    <a href="{{ url_for('data_page') }}">Dati</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrati</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <p><a href="https://github.com/RubenNovello" target="_blank">## 📬 Let's Connect</a></p>
+        <p style="margin-top: 10px; font-size: 0.85rem;">
+            <a href="https://github.com/RubenNovello" target="_blank">GitHub</a> ·
+            <a href="https://www.linkedin.com/in/ruben-novello" target="_blank">LinkedIn</a> ·
+            <a href="mailto:novelloruben@gmail.com">Email</a>
+        </p>
+        <p style="margin-top: 8px; font-size: 0.8rem; color: var(--sand-dark);">
+            Applicazione Open Source creata da Ruben Novello
+        </p>
+    </footer>
+</body>
+</html>

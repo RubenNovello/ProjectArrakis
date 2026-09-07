@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Anteprima {{ dataset.nome }} - Progetto Arrakis{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('data_page') }}" class="btn btn-small">← Torna ai Dataset</a>
+    <a href="{{ url_for('visualize_dataset', dataset_id=dataset.dataset_id) }}" class="btn btn-small" style="margin-left: 10px;">Visualizza Grafici</a>
+</div>
+
+<h1>{{ dataset.nome }}</h1>
+<p class="dataset-info">{{ dataset.descrizione or 'Dataset caricato il ' + dataset.created_at.strftime('%d/%m/%Y') }}</p>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="color: var(--wisdom-gold);">Anteprima Dati</h2>
+        <span style="color: var(--sand-dark); font-size: 0.9rem;">Formato: {{ dataset.file_type|upper }}</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    {% for header in csv_data.split('\n')[0].split(',') %}
+                    <th>{{ header|trim }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in csv_data.split('\n')[1:][:100] %}
+                {% if row|trim %}
+                <tr>
+                    {% for cell in row.split(',') %}
+                    <td>{{ cell|trim }}</td>
+                    {% endfor %}
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if csv_data.split('\n')|length > 101 %}
+    <p style="text-align: center; color: var(--sand-dark); margin-top: 15px;">
+        Mostrati i primi 100 di {{ csv_data.split('\n')|length - 1 }} righe totali
+    </p>
+    {% endif %}
+</div>
+
+<div style="margin-top: 20px;">
+    <a href="{{ url_for('download_csv', dataset_id=dataset.dataset_id) }}" class="btn">Scarica CSV</a>
+</div>
+{% endblock %}

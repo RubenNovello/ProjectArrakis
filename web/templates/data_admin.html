@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Gestione Dati Admin - Progetto Arrakis{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h1>Gestione Dataset - Tutti gli Utenti</h1>
+    <p style="color: var(--sand-dark);">Shai Hulud, {{ admin.username }}. Supervisiona tutti i dataset caricati.</p>
+</div>
+
+{% if datasets %}
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Utente</th>
+                    <th>Tipo</th>
+                    <th>Size</th>
+                    <th>Creato</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dataset in datasets %}
+                <tr>
+                    <td>#{{ dataset.dataset_id }}</td>
+                    <td><strong>{{ dataset.nome }}</strong></td>
+                    <td>
+                        {% for u in users %}
+                            {% if u.user_id == dataset.user_id %}
+                                {{ u.username }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td><span class="status" style="background: var(--night-sky);">{{ dataset.file_type|upper }}</span></td>
+                    <td>{{ "%.1f"|format(dataset.file_size / 1024) }} KB</td>
+                    <td>{{ dataset.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <a href="{{ url_for('visualize_dataset', dataset_id=dataset.dataset_id) }}" class="btn btn-small">Visualizza</a>
+                        <a href="{{ url_for('preview_dataset', dataset_id=dataset.dataset_id) }}" class="btn btn-small" style="background: var(--arrakis-green);">Anteprima</a>
+                        <a href="{{ url_for('download_csv', dataset_id=dataset.dataset_id) }}" class="btn btn-small">CSV</a>
+                        <a href="{{ url_for('admin_user_datasets', user_id=dataset.user_id) }}" class="btn btn-small">Vedi Utente</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card">
+        <p style="text-align: center; color: var(--sand-dark);">Nessun dataset presente nel sistema.</p>
+    </div>
+{% endif %}
+
+<div style="margin-top: 20px;">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-small">← Torna alla Dashboard</a>
+</div>
+{% endblock %}

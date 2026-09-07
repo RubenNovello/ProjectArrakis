@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Progetto Arrakis{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h1>Dashboard Amministratore</h1>
+    <p style="color: var(--sand-dark);">Shai Hulud, {{ admin.username }}. Vedi e gestisci tutti gli utenti e task.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+    <div class="card" style="text-align: center;">
+        <h2 style="border: none; margin-bottom: 10px;">{{ tasks|length }}</h2>
+        <p>Task Totali</p>
+    </div>
+    <div class="card" style="text-align: center;">
+        <h2 style="border: none; margin-bottom: 10px;">{{ users|length }}</h2>
+        <p>Utenti Registrati</p>
+    </div>
+    <div class="card" style="text-align: center;">
+        <h2 style="border: none; margin-bottom: 10px;">{{ tasks|selectattr('stato', 'equalto', 'done')|list|length }}</h2>
+        <p>Task Completati</p>
+    </div>
+</div>
+
+<h2>Task di Tutti gli Utenti</h2>
+{% if tasks %}
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titolo</th>
+                    <th>Utente</th>
+                    <th>Stato</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>#{{ task.task_id }}</td>
+                    <td><strong>{{ task.titolo }}</strong></td>
+                    <td>
+                        {% for u in users %}
+                            {% if u.user_id == task.user_id %}
+                                {{ u.username }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td><span class="status {{ task.stato }}">{{ task.stato }}</span></td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_update_task_status', task_id=task.task_id) }}" style="display: inline-flex; gap: 5px;">
+                            <select name="stato" style="padding: 5px; background: var(--deep-desert); color: var(--sand-light); border: 1px solid var(--sand-dark);">
+                                <option value="todo" {% if task.stato == 'todo' %}selected{% endif %}>Todo</option>
+                                <option value="in_progress" {% if task.stato == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="done" {% if task.stato == 'done' %}selected{% endif %}>Done</option>
+                            </select>
+                            <button type="submit" class="btn btn-small">Aggiorna</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card">
+        <p style="text-align: center; color: var(--sand-dark);">Nessun task presente nel sistema.</p>
+    </div>
+{% endif %}
+
+<h2>Utenti Registrati</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Creato</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>#{{ u.user_id }}</td>
+                <td><strong>{{ u.username }}</strong></td>
+                <td>{{ u.email }}</td>
+                <td>{{ u.created_at.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    <a href="{{ url_for('admin_user_tasks', user_id=u.user_id) }}" class="btn btn-small">Task</a>
+                    <a href="{{ url_for('admin_user_datasets', user_id=u.user_id) }}" class="btn btn-small" style="background: var(--arrakis-green);">Dati</a>
+                    <form method="POST" action="{{ url_for('admin_delete_user', user_id=u.user_id) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Eliminare questo utente e tutti i suoi task?')">Elimina</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Progetto Arrakis - Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: #0b0910;
+        font-family: Georgia, 'Times New Roman', serif;
+    }
+
+    nav {
+        position: relative;
+        z-index: 20;
+        background: rgba(11, 9, 16, 0.84);
+        backdrop-filter: blur(8px);
+    }
+
+    .home-scene {
+        position: relative;
+        min-height: calc(100vh - 82px);
+        margin: -20px -20px 0;
+        padding: 20px;
+        overflow: hidden;
+        background: linear-gradient(to bottom, #090b18 0%, #1b1b32 40%, #5f3f3d 76%, #9a5b39 100%);
+        isolation: isolate;
+    }
+
+    .home-scene::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background: radial-gradient(circle at 76% 38%, rgba(244, 182, 112, 0.78) 0 3%, rgba(199, 103, 65, 0.24) 8%, transparent 25%), linear-gradient(to bottom, rgba(5, 6, 14, 0.2), rgba(8, 5, 7, 0.34));
+    }
+
+    .home-scene::after {
+        content: '';
+        position: absolute;
+        left: -8%;
+        right: -8%;
+        bottom: -20%;
+        height: 58%;
+        z-index: -1;
+        border-radius: 50% 50% 0 0;
+        background: linear-gradient(to bottom, #493134, #120d12 78%);
+        box-shadow: 0 -28px 0 -10px rgba(191, 116, 73, 0.28), 0 -52px 0 -22px rgba(211, 143, 88, 0.16);
+    }
+
+    .home-stars {
+        position: absolute;
+        inset: 0;
+        opacity: 0.65;
+        background-image: radial-gradient(circle, #f6dfbf 0 1px, transparent 1.5px), radial-gradient(circle, rgba(246, 223, 191, 0.7) 0 1px, transparent 1.5px);
+        background-position: 12% 12%, 68% 22%;
+        background-size: 137px 103px, 191px 149px;
+        z-index: -1;
+    }
+
+    .home-spice {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 3;
+        background-image: radial-gradient(circle, rgba(247, 177, 82, 0.95) 0 2px, transparent 3px), radial-gradient(circle, rgba(239, 137, 54, 0.8) 0 1px, transparent 2px);
+        background-position: 12% 72%, 42% 64%;
+        background-size: 173px 127px, 89px 151px;
+        animation: spiceDrift 16s linear infinite;
+        opacity: 0.62;
+    }
+
+    @keyframes spiceDrift {
+        from { transform: translate3d(0, 14px, 0); }
+        to { transform: translate3d(50px, -20px, 0); }
+    }
+
+    .home-walker {
+        position: absolute;
+        bottom: 17%;
+        width: 20px;
+        height: 84px;
+        z-index: 2;
+        opacity: 0.8;
+        background: linear-gradient(110deg, transparent 0 28%, #0b0b13 29% 75%, transparent 76%);
+        clip-path: polygon(38% 0, 64% 0, 78% 18%, 100% 100%, 58% 83%, 50% 100%, 41% 83%, 0 100%, 24% 18%);
+        filter: drop-shadow(0 0 8px rgba(34, 31, 41, 0.8));
+        animation: homeWalk 13s linear infinite;
+    }
+
+    .home-walker::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 6px;
+        width: 9px;
+        height: 12px;
+        border-radius: 50%;
+        background: #71878e;
+        box-shadow: 0 0 10px rgba(147, 191, 188, 0.5);
+    }
+
+    .walker-one { left: 4%; animation-delay: -2s; transform: scale(0.65); }
+    .walker-two { left: 57%; animation-delay: -8s; transform: scale(0.9); }
+    .walker-three { left: 84%; animation-delay: -5s; transform: scale(0.5); }
+
+    @keyframes homeWalk {
+        0%, 100% { margin-left: 0; }
+        50% { margin-left: 15%; }
+    }
+
+    .hero {
+        position: relative;
+        z-index: 5;
+        max-width: 760px;
+        margin: 0 auto;
+        padding: clamp(70px, 14vh, 150px) 20px 90px;
+        text-align: center;
+    }
+
+    .hero h1 {
+        color: #f0cc85;
+        font-size: clamp(2.2rem, 7vw, 4.8rem);
+        letter-spacing: 0.08em;
+        text-shadow: 0 3px 25px rgba(0, 0, 0, 0.55);
+    }
+
+    .hero p {
+        color: #f2dcc0;
+    }
+
+    .hero .subtitle {
+        color: #efab65;
+    }
+
+    .home-content {
+        position: relative;
+        z-index: 5;
+        max-width: 1040px;
+        margin: -10px auto 0;
+    }
+
+    .home-content .card {
+        background: rgba(14, 11, 17, 0.82);
+        border-color: rgba(220, 155, 91, 0.48);
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.24);
+        backdrop-filter: blur(6px);
+    }
+
+    .home-content .card h2 {
+        color: #edbd72;
+    }
+
+    @media (max-width: 600px) {
+        .home-scene { margin-left: -20px; margin-right: -20px; }
+        .hero { padding-top: 80px; }
+        .home-walker { bottom: 12%; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="home-scene">
+    <div class="home-stars"></div>
+    <div class="home-spice"></div>
+    <div class="home-walker walker-one" aria-hidden="true"></div>
+    <div class="home-walker walker-two" aria-hidden="true"></div>
+    <div class="home-walker walker-three" aria-hidden="true"></div>
+
+    <div class="hero">
+        <h1>PROGETTO ARRAKIS</h1>
+        <p>Sistema di gestione task e visualizzazione dati</p>
+        <p class="subtitle">"Il Deserto ti chiama. I Task ti aspettano."</p>
+        <br>
+        {% if not session.get('user_id') and not session.get('admin_id') %}
+            <a href="{{ url_for('login') }}" class="btn">Accedi</a>
+            <a href="{{ url_for('register') }}" class="btn" style="background: var(--wisdom-gold);">Registrati</a>
+        {% else %}
+            <a href="{{ url_for('dashboard') }}" class="btn">Vai alla Dashboard</a>
+        {% endif %}
+    </div>
+</section>
+
+<div class="home-content card">
+    <h2>Sul Progetto</h2>
+    <p>Gestisci i tuoi task e visualizza i tuoi dati con grafici interattivi in stile Tableau.</p>
+    <p style="margin-top: 15px;">Ogni utente può caricare dataset e creare visualizzazioni personalizzate.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+    <div class="card">
+        <h2>Per gli Utenti</h2>
+        <p>Registrati per iniziare a organizzare i tuoi task e caricare i tuoi dataset per visualizzazioni avanzate.</p>
+    </div>
+    <div class="card">
+        <h2>Per gli Admin</h2>
+        <p>Gli amministratori possono supervisionare tutti gli utenti, i loro task e i dataset caricati.</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Progetto Arrakis</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            min-height: 100vh;
+            background: #09070a;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .scene {
+            position: fixed;
+            inset: 0;
+        }
+
+        .sky {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                #070811 0%,
+                #111426 24%,
+                #25233a 44%,
+                #493447 63%,
+                #7b4938 80%,
+                #b16a3c 100%
+            );
+        }
+
+        .sky::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 72%, rgba(228, 148, 76, 0.2), transparent 42%), linear-gradient(to bottom, rgba(4, 5, 13, 0.2), rgba(8, 5, 5, 0.38));
+        }
+
+        .sun {
+            position: absolute;
+            bottom: 30%;
+            left: 72%;
+            transform: translateX(-50%);
+            width: 58px;
+            height: 58px;
+            background: radial-gradient(circle, #ffd59a 0%, #d77845 52%, #713c43 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 32px rgba(220, 122, 66, 0.75), 0 0 110px rgba(201, 93, 67, 0.3);
+            opacity: 0.82;
+            z-index: 1;
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+        }
+
+        .star {
+            position: absolute;
+            background: #f6dfbf;
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+            box-shadow: 0 0 5px rgba(255, 226, 183, 0.7);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .dunes {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 48%;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .dune {
+            position: absolute;
+            bottom: 0;
+            border-radius: 100% 100% 0 0;
+            overflow: hidden;
+        }
+
+        .dune::after {
+            content: '';
+            position: absolute;
+            top: 12%;
+            left: 8%;
+            width: 78%;
+            height: 36%;
+            border-top: 1px solid rgba(220, 157, 103, 0.22);
+            border-radius: 50%;
+            transform: rotate(-7deg);
+        }
+
+        .dune-1 {
+            left: -20%;
+            width: 80%;
+            height: 100%;
+            background: linear-gradient(to bottom, #3c2a2c, #100b0b 70%);
+        }
+
+        .dune-2 {
+            left: 40%;
+            width: 70%;
+            height: 85%;
+            background: linear-gradient(to bottom, #574039, #1a1010 72%);
+        }
+
+        .dune-3 {
+            right: -10%;
+            width: 60%;
+            height: 90%;
+            background: linear-gradient(to bottom, #33252a, #0d090b 72%);
+        }
+
+        .dune-4 {
+            left: 20%;
+            width: 50%;
+            height: 60%;
+            background: linear-gradient(to bottom, #493232, #151010 72%);
+        }
+
+        .spice-field {
+            position: absolute;
+            inset: 0;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .spice-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #f4b35f;
+            box-shadow: 0 0 8px #e88b38, 0 0 15px rgba(244, 179, 95, 0.7);
+            animation: spiceFloat 9s ease-in-out infinite;
+        }
+
+        @keyframes spiceFloat {
+            0%, 100% { transform: translate3d(0, 14px, 0); opacity: 0; }
+            15%, 80% { opacity: 0.75; }
+            50% { transform: translate3d(34px, -44px, 0); opacity: 1; }
+        }
+
+        .fremen {
+            position: absolute;
+            bottom: 0;
+            z-index: 5;
+        }
+
+        .fremen-walking {
+            animation: walkRight 20s linear infinite;
+        }
+
+        .fremen-walking-1 { left: 0; animation-delay: 0s; }
+        .fremen-walking-2 { left: 0; animation-delay: 7s; transform: scale(0.7); }
+        .fremen-walking-3 { left: 0; animation-delay: 14s; transform: scale(0.5); }
+
+        @keyframes walkRight {
+            0% { transform: translateX(-100px); opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
+        }
+
+        .fremen-figure {
+            position: relative;
+            width: 50px;
+            height: 100px;
+        }
+
+        .fremen-head {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 16px;
+            background: radial-gradient(circle at 50% 40%, #a1bbbf 0 18%, #32404e 20% 42%, #090a12 72%);
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(145, 194, 197, 0.55);
+        }
+
+        .fremen-body {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 48px;
+            background: linear-gradient(105deg, #161820, #3b3030 55%, #0c0d12);
+            border-radius: 12px 12px 4px 4px;
+            clip-path: polygon(25% 0, 75% 0, 100% 100%, 0 100%);
+        }
+
+        .fremen-legs {
+            position: absolute;
+            top: 57px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+
+        .fremen-leg {
+            width: 8px;
+            height: 35px;
+            background: linear-gradient(to bottom, #1a1510, #0d0a07);
+            border-radius: 3px;
+        }
+
+        .leg-walk-1 { animation: legWalk1 0.4s infinite alternate ease-in-out; }
+        .leg-walk-2 { animation: legWalk2 0.4s infinite alternate ease-in-out; }
+
+        @keyframes legWalk1 {
+            0% { transform: rotate(-15deg); }
+            100% { transform: rotate(15deg); }
+        }
+
+        @keyframes legWalk2 {
+            0% { transform: rotate(15deg); }
+            100% { transform: rotate(-15deg); }
+        }
+
+        .fremen-still {
+            opacity: 0.6;
+        }
+
+        .fremen-still-1 { left: 15%; transform: scale(0.5); }
+        .fremen-still-2 { right: 20%; transform: scale(0.4); }
+        .fremen-still-3 { left: 45%; transform: scale(0.35); }
+
+        .login-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            width: 90%;
+            max-width: 380px;
+        }
+
+        .login-card {
+            background: rgba(10, 9, 14, 0.84);
+            border: 1px solid rgba(223, 155, 92, 0.65);
+            border-radius: 16px;
+            padding: 40px 35px;
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.52), 0 0 35px rgba(193, 104, 61, 0.17), inset 0 0 30px rgba(255, 190, 117, 0.035);
+            backdrop-filter: blur(7px);
+        }
+
+        .login-logo {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f0cc85, #d47742);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: #c2a66b;
+            font-style: italic;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #f4e4bc;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 13px 15px;
+            background: rgba(30, 25, 20, 0.9);
+            border: 1px solid #5c4a3a;
+            border-radius: 8px;
+            color: #f4e4bc;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #d4762c;
+            box-shadow: 0 0 15px rgba(212, 118, 44, 0.4);
+        }
+
+        .form-group input::placeholder {
+            color: #8a7a6a;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            accent-color: #d4762c;
+        }
+
+        .checkbox-group label {
+            color: #c2a66b;
+            font-size: 0.85rem;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #d4762c, #b85d1f);
+            border: none;
+            border-radius: 10px;
+            color: #0f0a05;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, #d4af37, #d4762c);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(212, 118, 44, 0.4);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .login-footer a {
+            color: #d4762c;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .login-footer a:hover {
+            color: #d4af37;
+        }
+
+        .flash-messages { margin-bottom: 15px; }
+
+        .flash {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .flash.error {
+            background: rgba(180, 40, 40, 0.8);
+            color: #ff8888;
+        }
+
+        .flash.success {
+            background: rgba(45, 90, 61, 0.8);
+            color: #90ee90;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 10, 5, 0.95);
+            border-top: 1px solid rgba(212, 118, 44, 0.6);
+            padding: 12px;
+            text-align: center;
+            z-index: 200;
+        }
+
+        .footer a {
+            color: #d4762c;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: #d4af37;
+        }
+
+        .footer-text {
+            font-size: 0.8rem;
+            color: #8a7a6a;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scene">
+        <div class="sky"></div>
+
+        <div class="stars" id="stars"></div>
+
+        <div class="spice-field" id="spice-field"></div>
+
+        <div class="sun"></div>
+
+        <div class="dunes">
+            <div class="dune dune-1"></div>
+            <div class="dune dune-2"></div>
+            <div class="dune dune-3"></div>
+            <div class="dune dune-4"></div>
+        </div>
+
+        <div class="fremen fremen-walking fremen-walking-1">
+            <div class="fremen-figure">
+                <div class="fremen-head"></div>
+                <div class="fremen-body"></div>
+                <div class="fremen-legs">
+                    <div class="fremen-leg leg-walk-1"></div>
+                    <div class="fremen-leg leg-walk-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fremen fremen-walking fremen-walking-2">
+            <div class="fremen-figure">
+                <div class="fremen-head"></div>
+                <div class="fremen-body"></div>
+                <div class="fremen-legs">
+                    <div class="fremen-leg leg-walk-1"></div>
+                    <div class="fremen-leg leg-walk-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fremen fremen-walking fremen-walking-3">
+            <div class="fremen-figure">
+                <div class="fremen-head"></div>
+                <div class="fremen-body"></div>
+                <div class="fremen-legs">
+                    <div class="fremen-leg leg-walk-1"></div>
+                    <div class="fremen-leg leg-walk-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fremen fremen-still fremen-still-1">
+            <div class="fremen-figure">
+                <div class="fremen-head"></div>
+                <div class="fremen-body"></div>
+                <div class="fremen-legs">
+                    <div class="fremen-leg"></div>
+                    <div class="fremen-leg"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fremen fremen-still fremen-still-2">
+            <div class="fremen-figure">
+                <div class="fremen-head"></div>
+                <div class="fremen-body"></div>
+                <div class="fremen-legs">
+                    <div class="fremen-leg"></div>
+                    <div class="fremen-leg"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fremen fremen-still fremen-still-3">
+            <div class="fremen-figure">
+                <div class="fremen-head"></div>
+                <div class="fremen-body"></div>
+                <div class="fremen-legs">
+                    <div class="fremen-leg"></div>
+                    <div class="fremen-leg"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-panel">
+        <div class="login-card">
+            <h1 class="login-logo">Progetto Arrakis</h1>
+            <p class="login-subtitle">"Il Deserto ti chiama. I Task ti aspettano."</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Il tuo nome nel deserto">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="La parola segreta">
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="is_admin" name="is_admin">
+                    <label for="is_admin">Accedi come Amministratore</label>
+                </div>
+                <button type="submit" class="btn-login">Entra nel Deserto</button>
+            </form>
+
+            <div class="login-footer">
+                <a href="{{ url_for('register') }}">Non hai un account? Registrati</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><a href="https://github.com/RubenNovello" target="_blank">## 📬 Let's Connect</a></p>
+        <p class="footer-text">GitHub · LinkedIn · Email · Open Source by Ruben Novello</p>
+    </div>
+
+    <script>
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = 1 + Math.random() * 2.5;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        function createSpice() {
+            const container = document.getElementById('spice-field');
+            for (let i = 0; i < 34; i++) {
+                const particle = document.createElement('span');
+                particle.className = 'spice-particle';
+                particle.style.left = (8 + Math.random() * 84) + '%';
+                particle.style.top = (38 + Math.random() * 48) + '%';
+                particle.style.animationDelay = (Math.random() * -9) + 's';
+                particle.style.animationDuration = (7 + Math.random() * 6) + 's';
+                particle.style.transform = 'scale(' + (0.45 + Math.random() * 1.2) + ')';
+                container.appendChild(particle);
+            }
+        }
+
+        createStars();
+        createSpice();
+    </script>
+</body>
+</html>

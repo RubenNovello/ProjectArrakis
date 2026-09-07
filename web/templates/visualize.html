@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ dataset.nome }} - DataCanvas - Progetto Arrakis</title>
+    <style>
+        :root {
+            --sand-light: #f4e4bc;
+            --sand-dark: #c2a66b;
+            --spice-orange: #d4762c;
+            --arrakis-green: #2d5a3d;
+            --deep-desert: #1a1a2e;
+            --night-sky: #16213e;
+            --wisdom-gold: #d4af37;
+            --panel-bg: rgba(22, 33, 62, 0.95);
+            --border-color: #3d5a80;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--deep-desert);
+            min-height: 100vh;
+            color: var(--sand-light);
+            overflow: hidden;
+        }
+
+        .header {
+            background: var(--panel-bg);
+            border-bottom: 2px solid var(--spice-orange);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 50px;
+        }
+
+        .logo { font-size: 1.2rem; font-weight: bold; color: var(--wisdom-gold); text-decoration: none; }
+        .logo span { color: var(--spice-orange); }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 50px);
+        }
+
+        .left-panel {
+            width: 280px;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            background: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .chart-container {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .viz-wrapper {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            min-height: 400px;
+        }
+
+        .panel-section {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-section h4 {
+            color: var(--wisdom-gold);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .field-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            cursor: grab;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .field-item:hover {
+            background: rgba(212, 118, 44, 0.2);
+            border-color: var(--spice-orange);
+        }
+
+        .field-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .field-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .field-icon.measure { color: var(--arrakis-green); }
+        .field-icon.dimension { color: var(--spice-orange); }
+
+        .drop-zone {
+            background: rgba(255,255,255,0.02);
+            border: 2px dashed var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            min-height: 60px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(212, 118, 44, 0.1);
+            border-color: var(--spice-orange);
+        }
+
+        .drop-zone-label {
+            font-size: 0.7rem;
+            color: var(--sand-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .dropped-field {
+            display: inline-flex;
+            align-items: center;
+            background: var(--spice-orange);
+            color: var(--deep-desert);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin: 3px;
+            cursor: pointer;
+        }
+
+        .dropped-field:hover {
+            background: var(--wisdom-gold);
+        }
+
+        .btn {
+            padding: 8px 14px;
+            background: var(--spice-orange);
+            color: var(--deep-desert);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { background: var(--wisdom-gold); }
+        .btn.active { background: var(--wisdom-gold); }
+
+        .chart-btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+        }
+
+        .chart-type-selector {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .field-bucket {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            min-height: 30px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+
+        .breadcrumb a { color: var(--spice-orange); text-decoration: none; }
+        .breadcrumb span { color: var(--sand-dark); }
+
+        #chart { width: 100%; height: 100%; }
+        #chart svg { width: 100%; height: 100%; }
+
+        .tooltip {
+            position: fixed;
+            background: var(--panel-bg);
+            border: 1px solid var(--spice-orange);
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="breadcrumb">
+            <a href="{{ url_for('data_page') }}" class="logo">Progetto <span>Arrakis</span></a>
+            <span>/</span>
+            <span>{{ dataset.nome }}</span>
+        </div>
+        <div>
+            <a href="{{ url_for('preview_dataset', dataset_id=dataset.dataset_id) }}" class="btn" style="margin-right: 10px;">Tabella</a>
+            <a href="{{ url_for('download_csv', dataset_id=dataset.dataset_id) }}" class="btn">Esporta</a>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="panel-section">
+                <h4>Dimensioni</h4>
+                <div id="dimensions-list"></div>
+            </div>
+            <div class="panel-section">
+                <h4>Misure</h4>
+                <div id="measures-list"></div>
+            </div>
+        </div>
+
+        <div class="canvas-area">
+            <div class="toolbar">
+                <div class="chart-type-selector">
+                    <button class="btn chart-btn active" onclick="setChartType('bar')" title="Barre">📊</button>
+                    <button class="btn chart-btn" onclick="setChartType('horizontalBar')" title="Barre Orizzontali">📉</button>
+                    <button class="btn chart-btn" onclick="setChartType('line')" title="Linea">📈</button>
+                    <button class="btn chart-btn" onclick="setChartType('area')" title="Area">🔲</button>
+                    <button class="btn chart-btn" onclick="setChartType('pie')" title="Torta">⭕</button>
+                    <button class="btn chart-btn" onclick="setChartType('scatter')" title="Dispersione">⚬</button>
+                    <button class="btn chart-btn" onclick="setChartType('treemap')" title="Treemap">▦</button>
+                </div>
+                <button class="btn" onclick="renderChart()" style="margin-left: auto;">Aggiorna</button>
+            </div>
+
+            <div class="chart-container">
+                <div class="viz-wrapper">
+                    <div id="chart"></div>
+                </div>
+            </div>
+
+            <div style="background: var(--panel-bg); padding: 10px; border-top: 1px solid var(--border-color);">
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div>
+                        <span class="drop-zone-label">Righe (Y)</span>
+                        <div id="rows-zone" class="drop-zone field-bucket"></div>
+                    </div>
+                    <div>
+                        <span class="drop-zone-label">Colonne (X)</span>
+                        <div id="columns-zone" class="drop-zone field-bucket"></div>
+                    </div>
+                    <div>
+                        <span class="drop-zone-label">Valori (Misure)</span>
+                        <div id="values-zone" class="drop-zone field-bucket"></div>
+                    </div>
+                    <div>
+                        <span class="drop-zone-label">Colori</span>
+                        <div id="color-zone" class="drop-zone field-bucket"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tooltip" class="tooltip"></div>
+
+    <script>
+        const csvData = {{ csv_data | tojson | safe }};
+        let parsedData = { headers: [], data: [] };
+        let dimensions = [];
+        let measures = [];
+        let currentChartType = 'bar';
+        let droppedFields = { rows: [], columns: [], values: [], colors: [] };
+
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length === headers.length) {
+                    const row = {};
+                    headers.forEach((h, idx) => row[h] = values[idx]);
+                    data.push(row);
+                }
+            }
+            return { headers, data };
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        function detectColumnType(values) {
+            const sample = values.slice(0, Math.min(20, values.length)).filter(v => v !== '' && v !== null && v !== undefined);
+            if (sample.length === 0) return 'string';
+            const isNumeric = sample.every(v => !isNaN(parseFloat(v)) && isFinite(v));
+            return isNumeric ? 'measure' : 'dimension';
+        }
+
+        function init() {
+            parsedData = parseCSV(csvData);
+
+            const containerD = document.getElementById('dimensions-list');
+            const containerM = document.getElementById('measures-list');
+
+            parsedData.headers.forEach(col => {
+                const values = parsedData.data.map(r => r[col]);
+                const type = detectColumnType(values);
+                const field = { name: col, type };
+
+                if (type === 'dimension') dimensions.push(field);
+                else measures.push(field);
+
+                const el = document.createElement('div');
+                el.className = 'field-item';
+                el.draggable = true;
+                el.dataset.field = col;
+                el.dataset.type = type;
+                el.innerHTML = `<span class="field-icon ${type}">${type === 'measure' ? '♞' : '♝'}</span>${col}`;
+
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('dragend', handleDragEnd);
+
+                if (type === 'dimension') containerD.appendChild(el);
+                else containerM.appendChild(el);
+            });
+
+            setupDropZones();
+            renderChart();
+        }
+
+        function handleDragStart(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                field: e.target.dataset.field,
+                type: e.target.dataset.type
+            }));
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function setupDropZones() {
+            const zones = ['rows', 'columns', 'values', 'colors'];
+            zones.forEach(zone => {
+                const el = document.getElementById(`${zone}-zone`);
+                el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
+                el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+                el.addEventListener('drop', e => {
+                    e.preventDefault();
+                    el.classList.remove('drag-over');
+                    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                    addToZone(zone, data);
+                });
+            });
+        }
+
+        function addToZone(zone, data) {
+            if (!droppedFields[zone].find(f => f.field === data.field)) {
+                droppedFields[zone].push(data);
+                renderZone(zone);
+                renderChart();
+            }
+        }
+
+        function removeFromZone(zone, fieldName) {
+            droppedFields[zone] = droppedFields[zone].filter(f => f.field !== fieldName);
+            renderZone(zone);
+            renderChart();
+        }
+
+        function renderZone(zone) {
+            const el = document.getElementById(`${zone}-zone`);
+            el.innerHTML = droppedFields[zone].map(f =>
+                `<span class="dropped-field" onclick="removeFromZone('${zone}', '${f.field}')">${f.field} ×</span>`
+            ).join('');
+        }
+
+        function setChartType(type) {
+            currentChartType = type;
+            document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderChart();
+        }
+
+        function renderChart() {
+            const chartDiv = document.getElementById('chart');
+            chartDiv.innerHTML = '';
+
+            const xField = droppedFields.columns[0]?.field || dimensions[0]?.name;
+            const yField = droppedFields.values[0]?.field || measures[0]?.name;
+            const colorField = droppedFields.colors[0]?.field;
+
+            if (!xField && !yField) {
+                chartDiv.innerHTML = '<p style="text-align:center;color:#666;padding:100px;">Trascina i campi nelle zone sottostanti per creare la visualizzazione</p>';
+                return;
+            }
+
+            const w = chartDiv.clientWidth || 800;
+            const h = chartDiv.clientHeight || 500;
+
+            switch(currentChartType) {
+                case 'bar': createBarChart(xField, yField, colorField, w, h); break;
+                case 'horizontalBar': createHorizontalBarChart(xField, yField, colorField, w, h); break;
+                case 'line': createLineChart(xField, yField, colorField, w, h); break;
+                case 'area': createAreaChart(xField, yField, colorField, w, h); break;
+                case 'pie': createPieChart(xField, yField, colorField, w, h); break;
+                case 'scatter': createScatterChart(xField, yField, colorField, w, h); break;
+                case 'treemap': createTreemap(xField, yField, colorField, w, h); break;
+            }
+        }
+
+        function createBarChart(xField, yField, colorField, w, h) {
+            if (!yField || !measures.find(m => m.name === yField)) {
+                createHorizontalBarChart(xField, yField, colorField, w, h);
+                return;
+            }
+
+            const margin = { top: 20, right: 30, bottom: xField === dimensions[0]?.name ? 100 : 60, left: 60 };
+            const width = w - margin.left - margin.right;
+            const height = h - margin.top - margin.bottom;
+
+            const svg = d3.select('#chart').append('svg').attr('width', w).attr('height', h);
+            const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const grouped = d3.group(parsedData.data, d => d[xField]);
+            const aggregated = Array.from(grouped, ([key, values]) => ({
+                key, value: d3.sum(values, v => parseFloat(v[yField]) || 0)
+            })).slice(0, 30);
+
+            const x = d3.scaleBand().domain(aggregated.map(d => d.key)).range([0, width]).padding(0.2);
+            const y = d3.scaleLinear().domain([0, d3.max(aggregated, d => d.value)]).nice().range([height, 0]);
+
+            g.append('g').attr('transform', `translate(0,${height})`).call(d3.axisBottom(x)).selectAll('text')
+                .attr('transform', 'rotate(-45)').style('text-anchor', 'end').style('fill', '#333');
+
+            g.append('g').call(d3.axisLeft(y)).selectAll('text').style('fill', '#333');
+
+            g.selectAll('rect').data(aggregated).join('rect')
+                .attr('x', d => x(d.key)).attr('y', d => y(d.value))
+                .attr('width', x.bandwidth()).attr('height', d => height - y(d.value))
+                .attr('fill', '#d4762c').attr('rx', 4)
+                .on('mouseover', (event, d) => showTooltip(event, `${xField}: ${d.key}<br>${yField}: ${d.value.toFixed(2)}`))
+                .on('mouseout', hideTooltip);
+        }
+
+        function createHorizontalBarChart(xField, yField, colorField, w, h) {
+            const useXAsMeasure = measures.find(m => m.name === xField);
+            const field = useXAsMeasure ? xField : (yField || xField);
+            const labelField = useXAsMeasure ? (yField || dimensions[0]?.name) : xField;
+
+            if (!field || !parsedData.data.length) return;
+
+            const margin = { top: 20, right: 30, bottom: 30, left: useXAsMeasure ? 60 : 150 };
+            const width = w - margin.left - margin.right;
+            const height = h - margin.top - margin.bottom;
+
+            const svg = d3.select('#chart').append('svg').attr('width', w).attr('height', h);
+            const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const aggregated = d3.group(parsedData.data, d => d[labelField]);
+            const data = Array.from(aggregated, ([key, values]) => ({
+                key, value: d3.sum(values, v => parseFloat(v[field]) || 0)
+            })).sort((a, b) => b.value - a.value).slice(0, 20);
+
+            const y = d3.scaleBand().domain(data.map(d => d.key)).range([0, height]).padding(0.2);
+            const x = d3.scaleLinear().domain([0, d3.max(data, d => d.value)]).nice().range([0, width]);
+
+            g.append('g').call(d3.axisLeft(y)).selectAll('text').style('fill', '#333');
+            g.append('g').attr('transform', `translate(0,${height})`).call(d3.axisBottom(x)).selectAll('text').style('fill', '#333');
+
+            g.selectAll('rect').data(data).join('rect')
+                .attr('y', d => y(d.key)).attr('x', 0)
+                .attr('height', y.bandwidth()).attr('width', d => x(d.value))
+                .attr('fill', '#d4762c').attr('rx', 4)
+                .on('mouseover', (event, d) => showTooltip(event, `${labelField}: ${d.key}<br>${field}: ${d.value.toFixed(2)}`))
+                .on('mouseout', hideTooltip);
+
+            g.selectAll('text.label').data(data).join('text')
+                .attr('class', 'label').attr('x', d => x(d.value) + 5)
+                .attr('y', d => y(d.key) + y.bandwidth() / 2).attr('dy', '0.35em')
+                .style('font-size', '12px').style('fill', '#333').text(d => d.value.toFixed(0));
+        }
+
+        function createLineChart(xField, yField, colorField, w, h) {
+            const field = yField || measures[0]?.name || xField;
+
+            const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+            const width = w - margin.left - margin.right;
+            const height = h - margin.top - margin.bottom;
+
+            const svg = d3.select('#chart').append('svg').attr('width', w).attr('height', h);
+            const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const aggregated = d3.group(parsedData.data, d => d[xField]);
+            const data = Array.from(aggregated, ([key, values]) => ({
+                key, value: d3.sum(values, v => parseFloat(v[field]) || 0)
+            }));
+
+            const x = d3.scalePoint().domain(data.map(d => d.key)).range([0, width]);
+            const y = d3.scaleLinear().domain([0, d3.max(data, d => d.value)]).nice().range([height, 0]);
+
+            g.append('g').attr('transform', `translate(0,${height})`).call(d3.axisBottom(x)).selectAll('text')
+                .attr('transform', 'rotate(-45)').style('text-anchor', 'end').style('fill', '#333');
+
+            g.append('g').call(d3.axisLeft(y)).selectAll('text').style('fill', '#333');
+
+            const line = d3.line().x(d => x(d.key)).y(d => y(d.value)).curve(d3.curveMonotoneX);
+
+            g.append('path').datum(data).attr('fill', 'none').attr('stroke', '#d4762c').attr('stroke-width', 3).attr('d', line);
+
+            g.selectAll('circle').data(data).join('circle')
+                .attr('cx', d => x(d.key)).attr('cy', d => y(d.value)).attr('r', 5)
+                .attr('fill', '#d4af37')
+                .on('mouseover', (event, d) => showTooltip(event, `${xField}: ${d.key}<br>${field}: ${d.value.toFixed(2)}`))
+                .on('mouseout', hideTooltip);
+        }
+
+        function createAreaChart(xField, yField, colorField, w, h) {
+            const field = yField || measures[0]?.name || xField;
+
+            const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+            const width = w - margin.left - margin.right;
+            const height = h - margin.top - margin.bottom;
+
+            const svg = d3.select('#chart').append('svg').attr('width', w).attr('height', h);
+            const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const aggregated = d3.group(parsedData.data, d => d[xField]);
+            const data = Array.from(aggregated, ([key, values]) => ({
+                key, value: d3.sum(values, v => parseFloat(v[field]) || 0)
+            }));
+
+            const x = d3.scalePoint().domain(data.map(d => d.key)).range([0, width]);
+            const y = d3.scaleLinear().domain([0, d3.max(data, d => d.value)]).nice().range([height, 0]);
+
+            g.append('g').attr('transform', `translate(0,${height})`).call(d3.axisBottom(x)).selectAll('text')
+                .attr('transform', 'rotate(-45)').style('text-anchor', 'end').style('fill', '#333');
+
+            g.append('g').call(d3.axisLeft(y)).selectAll('text').style('fill', '#333');
+
+            const area = d3.area().x(d => x(d.key)).y0(height).y1(d => y(d.value)).curve(d3.curveMonotoneX);
+
+            g.append('path').datum(data).attr('fill', 'rgba(212, 118, 55, 0.5)').attr('d', area);
+            g.append('path').datum(data).attr('fill', 'none').attr('stroke', '#d4762c').attr('stroke-width', 2).attr('d', d3.line().x(d => x(d.key)).y(d => y(d.value)).curve(d3.curveMonotoneX));
+        }
+
+        function createPieChart(xField, yField, colorField, w, h) {
+            const field = yField || measures[0]?.name;
+
+            const radius = Math.min(w, h) / 2 - 40;
+            const svg = d3.select('#chart').append('svg').attr('width', w).attr('height', h)
+                .append('g').attr('transform', `translate(${w/2},${h/2})`);
+
+            const aggregated = d3.group(parsedData.data, d => d[xField]);
+            const data = Array.from(aggregated, ([key, values]) => ({
+                key, value: d3.sum(values, v => parseFloat(v[field]) || 0)
+            })).slice(0, 12);
+
+            const color = d3.scaleOrdinal().domain(data.map(d => d.key)).range(d3.schemeSet3);
+
+            const pie = d3.pie().value(d => d.value);
+            const arc = d3.arc().innerRadius(0).outerRadius(radius);
+            const arcHover = d3.arc().innerRadius(0).outerRadius(radius + 10);
+
+            svg.selectAll('path').data(pie(data)).join('path')
+                .attr('d', arc).attr('fill', d => color(d.data.key)).attr('stroke', '#fff').attr('stroke-width', 2)
+                .on('mouseover', function(event, d) {
+                    d3.select(this).attr('d', arcHover);
+                    const percent = ((d.data.value / d3.sum(data, p => p.value)) * 100).toFixed(1);
+                    showTooltip(event, `${d.data.key}<br>${field}: ${d.data.value.toFixed(2)}<br>${percent}%`);
+                })
+                .on('mouseout', function() { d3.select(this).attr('d', arc); hideTooltip(); });
+
+            svg.append('text').attr('text-anchor', 'middle').attr('dy', '-0.5em')
+                .style('font-size', '14px').style('fill', '#333').text(xField);
+        }
+
+        function createScatterChart(xField, yField, colorField, w, h) {
+            const xMeasure = measures.find(m => m.name === xField);
+            const yMeasure = measures.find(m => m.name === yField);
+
+            const xF = xMeasure ? xField : (measures[0]?.name || xField);
+            const yF = yMeasure ? yField : (measures[1]?.name || measures[0]?.name);
+
+            if (xF === yF) return createPieChart(xField, yField, colorField, w, h);
+
+            const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+            const width = w - margin.left - margin.right;
+            const height = h - margin.top - margin.bottom;
+
+            const svg = d3.select('#chart').append('svg').attr('width', w).attr('height', h);
+            const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear().domain(d3.extent(parsedData.data, d => parseFloat(d[xF]) || 0)).nice().range([0, width]);
+            const y = d3.scaleLinear().domain(d3.extent(parsedData.data, d => parseFloat(d[yF]) || 0)).nice().range([height, 0]);
+
+            g.append('g').attr('transform', `translate(0,${height})`).call(d3.axisBottom(x)).selectAll('text').style('fill', '#333');
+            g.append('g').call(d3.axisLeft(y)).selectAll('text').style('fill', '#333');
+
+            g.append('text').attr('x', width/2).attr('y', height + 45).attr('text-anchor', 'middle').style('fill', '#333').text(xF);
+            g.append('text').attr('transform', 'rotate(-90)').attr('x', -height/2).attr('y', -45).attr('text-anchor', 'middle').style('fill', '#333').text(yF);
+
+            g.selectAll('circle').data(parsedData.data).join('circle')
+                .attr('cx', d => x(parseFloat(d[xF]) || 0)).attr('cy', d => y(parseFloat(d[yF]) || 0))
+                .attr('r', 6).attr('fill', '#d4762c').attr('opacity', 0.7)
+                .on('mouseover', (event, d) => showTooltip(event, `${xF}: ${d[xF]}<br>${yF}: ${d[yF]}`))
+                .on('mouseout', hideTooltip);
+        }
+
+        function createTreemap(xField, yField, colorField, w, h) {
+            const field = yField || measures[0]?.name || xField;
+
+            const root = d3.hierarchy({ children: parsedData.data.map(d => ({ name: d[xField], value: parseFloat(d[field]) || 0 })) })
+                .sum(d => d.value).sort((a, b) => b.value - a.value);
+
+            d3.treemap().size([w, h]).padding(2)(root);
+
+            const svg = d3.select('#chart').append('svg').attr('width', w).attr('height', h);
+
+            const color = d3.scaleOrdinal().domain(root.children?.map(d => d.data.name) || []).range(d3.schemeSet3);
+
+            svg.selectAll('rect').data(root.leaves()).join('rect')
+                .attr('x', d => d.x0).attr('y', d => d.y0)
+                .attr('width', d => d.x1 - d.x0).attr('height', d => d.y1 - d.y0)
+                .attr('fill', d => color(d.data.name)).attr('stroke', '#fff')
+                .on('mouseover', (event, d) => showTooltip(event, `${d.data.name}<br>${field}: ${d.value.toFixed(2)}`))
+                .on('mouseout', hideTooltip);
+        }
+
+        function showTooltip(event, text) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.innerHTML = text;
+            tooltip.style.left = (event.pageX + 10) + 'px';
+            tooltip.style.top = (event.pageY - 10) + 'px';
+            tooltip.style.display = 'block';
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').style.display = 'none';
+        }
+
+        window.addEventListener('resize', () => renderChart());
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
