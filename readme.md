@@ -1,6 +1,6 @@
-# Titolo del progetto: 'Progetto Arrakis – Applicativo Tableau in python Open Source'
+# Titolo del progetto: 'Progetto Arrakis – Applicativo tabellare in python Open Source'
 ## 🧩 Descrizione Generale
-    Costruisci un'applicazione Python, organizzata secondo il paradigma MVC, per gestire un front-end tipo Tableau (Salesforce).L'applicazione permette a ciascun utente di registrarsi, accedere con login, aggiungere e gestire i propri dati (provenienti da .csv, .db., .xlsx, .csv, .json, .xml, .sql, .txt).
+    Costruisci un'applicazione Python, organizzata secondo il paradigma MVC, per gestire un front-end tabellare.L'applicazione permette a ciascun utente di registrarsi, accedere con login, aggiungere e gestire i propri dati (provenienti da .csv, .db., .xlsx, .csv, .json, .xml, .sql, .txt).
 
 ## 🟢 Step 1 – Setup progetto e struttura MVC
     • Crea la struttura base del progetto con i file: model.py, view.py, controller.py, main.py.
